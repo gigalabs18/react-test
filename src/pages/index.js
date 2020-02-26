@@ -10,8 +10,10 @@ let { continents } = data
 const setFilterKeys = () => {
   return continents.map((c) => setFilterKey(c) )
 }
+let allKeys = []
 const setFilterKey = function(c1, parentKey=null){
   const key = parentKey ? `${parentKey}=>${c1.name}` : c1.name
+  allKeys.push(key)
   if ( !c1.children ) {
     return { ...c1, key }
   }
@@ -39,19 +41,15 @@ const IndexPage = () => {
 
   const onFilterChange = (filter, e) => {
     const check = e.target.checked
-
     let selected = { ...selectedFilters, [filter.key]: check }
 
-    if (filter.children) {
-      filter.children.forEach((f) => {
-        selected[f.key] = check
-        if (f.children) {
-          f.children.forEach((f) => {
-            selected[f.key] = check
-          })
-        }
-      })
-    }
+    const keysToBeChanged = allKeys.filter((k)=>{
+      let matched = k.includes(filter.key)
+      if (matched) {
+        selected[k] = check
+      }
+      return matched
+    })
       
     setSelectedFilters(selected)
     const keys = Object.keys(selected).filter((k)=> !!selected[k] );
